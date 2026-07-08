@@ -128,6 +128,8 @@ streamlit run interactive_model_app.py
 
 ## 🎓 Academic Context
 
-**Institution:** Western University (UWO)  
-**Project Team:** Zehao Li Hugo
+**Institution:** Western University (UWO) 
+
+**Project Team:** Zehao Li
+
 **Supervisors:** Prof. Roorda, Prof. Tang 
