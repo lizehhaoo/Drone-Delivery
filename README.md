@@ -122,39 +122,12 @@ streamlit run interactive_model_app.py
 └── README.md                                        # Project documentation
 ```
 
----
 
-## Main Outputs
-
-After running the model, output files are saved under `interactive_runs/` or `out_drone_delivery_model/`, including:
-
-- `final_drone_delivery_routes_map.html`
-- `summary.csv`
-- `drone_routes.csv`
-- `drone_route_legs.csv`
-- `households_service_status.csv`
-- `selected_connected_relay_chargers.csv`
-- `recommended_permanent_chargers_optimized.csv`
-
-These generated output folders are ignored by Git because they can be recreated by running the app.
 
 ---
 
-## Live Demo Deployment
+## 🎓 Academic Context
 
-This project can be deployed on Streamlit Community Cloud. The main file path should be:
-
-```text
-interactive_model_app.py
-```
-
-After deployment, replace the Live Demo placeholder at the top of this README with your Streamlit app URL.
-
----
-
-## Academic Context
-
-**Institution:** Western University  
-**Project:** MEng On-Demand Train-Drone Delivery Simulation  
-**Study Area:** Manitoba, Canada  
-**Author:** Zehao Li
+**Institution:** Western University (UWO)  
+**Project Team:** Zehao Li Hugo
+**Supervisors:** Prof. Roorda, Prof. Tang 
