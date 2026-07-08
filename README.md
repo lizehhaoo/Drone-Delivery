@@ -114,11 +114,10 @@ streamlit run interactive_model_app.py
 ```text
 .
 ├── interactive_model_app.py                         # Main Streamlit dashboard
-├── payload_drone_backend_interactive_fixed_only.py   # Routing, charger selection, and simulation backend
-├── plot_map.py                                      # Optional script to regenerate household candidate CSV from building GeoJSON
+├── payload_drone_backend_interactive_fixed_only.py  # Routing, charger selection, and simulation backend
+├── plot_map.py                                      # According to Statistics Canada, regenerate the CSV file containing the list of candidate households
 ├── manitoba_household_candidates_ALL_points.csv     # Manitoba building centroid household candidates
 ├── requirements.txt                                 # Python dependencies
-├── start_interactive_model.command                  # macOS local launch helper
 ├── STREAMLIT_DEPLOYMENT_GUIDE.md                    # Live demo deployment instructions
 └── README.md                                        # Project documentation
 ```
