@@ -2,7 +2,7 @@
 
 **An Interactive Simulation Framework for Manitoba Train-Drone Logistics**
 
-> **Live Demo:** [Explore the Interactive Dashboard here!](https://drone-delivery-us9sqrexpcedig9m3efhiy.streamlit.app/)
+> **Live Demo:** [Drone Delivery Live Demo](https://drone-delivery-us9sqrexpcedig9m3efhiy.streamlit.app/)
 ---
 
 ## Overview
