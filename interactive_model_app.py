@@ -55,9 +55,6 @@ st.markdown(
 
 
 
-"""
-It checks whether a CSV file exists. If yes, it reads it as a table. If not, it returns an empty table.
-"""
 def read_csv_if_exists(path: str | Path) -> pd.DataFrame:
     path = Path(path)
     if not path.exists():
@@ -68,9 +65,6 @@ def read_csv_if_exists(path: str | Path) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-"""
-It checks whether a text file exists. If yes, it reads the text. If not, it returns empty text.
-"""
 def read_text_if_exists(path: str | Path) -> str:
     path = Path(path)
     if not path.exists():
@@ -81,11 +75,6 @@ def read_text_if_exists(path: str | Path) -> str:
         return ""
 
 
-"""
-It gets the first value from a column in a table. If the table is empty or the column does not exist,
-it returns a default value.
-
-"""
 def first_value(df: pd.DataFrame, col: str, default=None):
     if df.empty or col not in df.columns:
         return default
@@ -95,9 +84,6 @@ def first_value(df: pd.DataFrame, col: str, default=None):
         return default
 
 
-"""
-It displays the generated HTML map inside the Streamlit web app
-"""
 def show_map(map_path: str | Path, height: int = 760):
     map_path = Path(map_path)
     if not map_path.exists():
@@ -109,9 +95,6 @@ def show_map(map_path: str | Path, height: int = 760):
 
 
 
-"""
-Convert the entered number of ‘households’ into a numerical value.
-"""
 def parse_household_counts(raw: str) -> List[int]:
     counts: List[int] = []
     for piece in raw.replace(";", ",").split(","):
@@ -128,9 +111,6 @@ def parse_household_counts(raw: str) -> List[int]:
 
 
 
-"""
-Generate ‘Download CSV / Download Map’ buttons.
-"""
 def download_file_button(label: str, path: str | Path, mime: str = "text/csv"):
     path = Path(path)
     if path.exists():
@@ -147,9 +127,6 @@ def download_file_button(label: str, path: str | Path, mime: str = "text/csv"):
 
 
 # Permanent charger optimization + final-plan map overlay helpers
-"""
-Automatically locate the column containing the map point coordinates.
-"""
 def find_lat_lon_columns(df: pd.DataFrame) -> Tuple[Optional[str], Optional[str]]:
     """Find latitude/longitude columns even if the backend output names change."""
     if df.empty:
@@ -177,9 +154,6 @@ def find_lat_lon_columns(df: pd.DataFrame) -> Tuple[Optional[str], Optional[str]
 
 
 
-"""
-It finds score-related columns, such as score, uses, or count, to rank charger importance.
-"""
 def find_score_columns(df: pd.DataFrame) -> List[str]:
     """Find columns useful for ranking permanent charger importance."""
     if df.empty:
@@ -198,9 +172,6 @@ def find_score_columns(df: pd.DataFrame) -> List[str]:
     return cols
 
 
-"""
-It calculates the distance between two latitude/longitude points in kilometers.
-"""
 def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     radius_km = 6371.0088
     phi1 = math.radians(float(lat1))
@@ -211,10 +182,6 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return radius_km * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
-"""
-It cleans a point table. It finds latitude/longitude columns, converts them to numbers,
-and removes bad rows without valid coordinates.
-"""
 def clean_point_df(df: pd.DataFrame) -> Tuple[pd.DataFrame, Optional[str], Optional[str]]:
     lat_col, lon_col = find_lat_lon_columns(df)
     if df.empty or not lat_col or not lon_col:
@@ -227,10 +194,6 @@ def clean_point_df(df: pd.DataFrame) -> Tuple[pd.DataFrame, Optional[str], Optio
 
 
 
-"""
-It selects the best charger candidates while keeping them at least a certain distance apart.
-选 permanent chargers，同时避免它们挤在一起
-"""
 def optimize_chargers_by_min_spacing(
     candidates: pd.DataFrame,
     *,
@@ -289,11 +252,6 @@ def optimize_chargers_by_min_spacing(
 
 
 
-"""
-It creates a map for optimized permanent chargers.
-Selected chargers are shown in green, and skipped close chargers can be shown in another layer.
-把绿色 permanent chargers 画出来。
-"""
 def write_optimized_permanent_charger_map(
     selected_df: pd.DataFrame,
     skipped_df: pd.DataFrame,
@@ -366,10 +324,6 @@ def write_optimized_permanent_charger_map(
     return True
 
 
-"""
-It processes the permanent charger study results.
-It reads recommended chargers, applies spacing optimization, and saves new CSV/map files.
-"""
 def optimize_permanent_charger_outputs(study_outputs: dict, *, top_n_chargers: int, min_spacing_km: float) -> dict:
     """Add optimized permanent charger CSV/map files to backend permanent-study outputs."""
     output_dir = Path(study_outputs.get("output_dir", Path(study_outputs.get("recommended_csv", ".")).parent))
@@ -419,10 +373,6 @@ def optimize_permanent_charger_outputs(study_outputs: dict, *, top_n_chargers: i
 
 
 
-"""
-It automatically finds the latest permanent charger CSV file from the current session or previous runs.
-找到最新的绿色充电桩文件
-"""
 def find_latest_permanent_charger_csv(permanent_outputs: Optional[dict] = None) -> Optional[Path]:
     """Find the optimized permanent charger CSV from this session or previous runs."""
     candidates: List[Path] = []
@@ -448,9 +398,6 @@ def find_latest_permanent_charger_csv(permanent_outputs: Optional[dict] = None) 
 
 
 
-"""
-It finds the Folium map variable name inside the HTML file.
-"""
 def detect_folium_map_variable(html: str) -> Optional[str]:
     """Find the Leaflet/Folium map variable name inside backend-generated map HTML."""
     patterns = [
@@ -466,11 +413,6 @@ def detect_folium_map_variable(html: str) -> Optional[str]:
 
 
 
-"""
-It creates JavaScript code to add green permanent chargers to the map.
-It can also draw charger coverage circles.
-把绿色充电桩叠加到地图上
-"""
 def make_permanent_charger_js(
     permanent_df: pd.DataFrame,
     *,
@@ -545,9 +487,6 @@ def make_permanent_charger_js(
 
 
 
-"""
-It takes the backend route map and overlays green permanent chargers onto the same map.
-"""
 def inject_permanent_chargers_into_backend_map(
     *,
     backend_map_html: Path,
@@ -592,10 +531,6 @@ def inject_permanent_chargers_into_backend_map(
 
 
 
-"""
-It organizes the final plan output files,
-such as summary, routes, route legs, household status, and final map.
-"""
 def build_same_style_final_plan_outputs(
     *,
     routing_outputs: dict,
@@ -786,10 +721,6 @@ with st.sidebar:
 
 
 
-"""
-It packs all sidebar settings into one configuration object,
-such as drone model, range, payload, household number, random seed, and charger settings.
-"""
 def make_config(
     output_dir: Path,
     *,
