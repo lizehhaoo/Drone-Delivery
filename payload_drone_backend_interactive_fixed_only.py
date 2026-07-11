@@ -499,7 +499,7 @@ It keeps only the building or household candidate points inside the railway buff
 def filter_points_within_rail_buffer(df: pd.DataFrame, rail_line, rail_buffer) -> pd.DataFrame:
     gdf = gpd.GeoDataFrame(
         df.copy(),
-        geometry=[Point(xy) for xy in zip(df["x_m"], df["y_m"])],
+        geometry=gpd.points_from_xy(df["x_m"], df["y_m"]),
         crs=PROJECTED_CRS,
     )
 
@@ -1161,7 +1161,7 @@ It converts projected map coordinates back to latitude and longitude.
 def project_xy_to_latlon(x: float, y: float) -> Tuple[float, float]:
     gdf = gpd.GeoDataFrame(
         {"id": [0]},
-        geometry=[Point(float(x), float(y))],
+        geometry=gpd.points_from_xy([float(x)], [float(y)]),
         crs=PROJECTED_CRS,
     ).to_crs(WGS84_CRS)
     return float(gdf.geometry.y.iloc[0]), float(gdf.geometry.x.iloc[0])
@@ -1319,7 +1319,7 @@ def build_grid_coverage_status(
     # Add lat/lon for easier map/debug inspection in CSV.
     grid_gdf = gpd.GeoDataFrame(
         out[["x_m", "y_m"]].copy(),
-        geometry=[Point(xy) for xy in zip(out["x_m"], out["y_m"])],
+        geometry=gpd.points_from_xy(out["x_m"], out["y_m"]),
         crs=PROJECTED_CRS,
     ).to_crs(WGS84_CRS)
     out["lat"] = grid_gdf.geometry.y.astype(float).values
@@ -2848,7 +2848,7 @@ def xy_segment_to_latlon_locations(
     off_from_xy, off_to_xy = offset_segment_xy(from_xy, to_xy, route_id)
     seg_gdf = gpd.GeoDataFrame(
         {"id": [0, 1]},
-        geometry=[Point(off_from_xy), Point(off_to_xy)],
+        geometry=gpd.points_from_xy([float(off_from_xy[0]), float(off_to_xy[0])], [float(off_from_xy[1]), float(off_to_xy[1])]),
         crs=PROJECTED_CRS,
     ).to_crs(WGS84_CRS)
     return [
@@ -3026,12 +3026,12 @@ def make_map(
     if len(route_legs) > 0:
         from_gdf = gpd.GeoDataFrame(
             route_legs.copy(),
-            geometry=[Point(xy) for xy in zip(route_legs["from_x_m"], route_legs["from_y_m"])],
+            geometry=gpd.points_from_xy(route_legs["from_x_m"], route_legs["from_y_m"]),
             crs=PROJECTED_CRS,
         ).to_crs(WGS84_CRS)
         to_gdf = gpd.GeoDataFrame(
             route_legs.copy(),
-            geometry=[Point(xy) for xy in zip(route_legs["to_x_m"], route_legs["to_y_m"])],
+            geometry=gpd.points_from_xy(route_legs["to_x_m"], route_legs["to_y_m"]),
             crs=PROJECTED_CRS,
         ).to_crs(WGS84_CRS)
 
@@ -3153,7 +3153,7 @@ def make_map(
             # Convert all route event nodes in one projection call.
             event_gdf = gpd.GeoDataFrame(
                 nodes,
-                geometry=[Point((n["x_m"], n["y_m"])) for n in nodes],
+                geometry=gpd.points_from_xy([float(n["x_m"]) for n in nodes], [float(n["y_m"]) for n in nodes]),
                 crs=PROJECTED_CRS,
             ).to_crs(WGS84_CRS)
 
