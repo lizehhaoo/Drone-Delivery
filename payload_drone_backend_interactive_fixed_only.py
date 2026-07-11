@@ -22,6 +22,11 @@ except ImportError as exc:
     raise ImportError("Install geopandas and shapely: pip install geopandas shapely") from exc
 
 try:
+    from pyproj import Transformer
+except ImportError as exc:
+    raise ImportError("Install pyproj: pip install pyproj") from exc
+
+try:
     from scipy.spatial import cKDTree
 except ImportError as exc:
     raise ImportError("Install scipy: pip install scipy") from exc
@@ -436,18 +441,22 @@ def load_all_points_csv(path: Path) -> pd.DataFrame:
         raise ValueError("Input CSV must contain lat and lon columns.")
 
     df = df.copy().reset_index(drop=True)
+    df["lat"] = pd.to_numeric(df["lat"], errors="coerce")
+    df["lon"] = pd.to_numeric(df["lon"], errors="coerce")
+    df = df.dropna(subset=["lat", "lon"]).copy().reset_index(drop=True)
+
     if "household_id" not in df.columns:
         df["household_id"] = [f"MB_H{i:06d}" for i in range(len(df))]
 
-    gdf = gpd.GeoDataFrame(
-        df,
-        geometry=gpd.points_from_xy(df["lon"], df["lat"]),
-        crs=WGS84_CRS,
-    ).to_crs(PROJECTED_CRS)
-
-    gdf["x_m"] = gdf.geometry.x.astype(float)
-    gdf["y_m"] = gdf.geometry.y.astype(float)
-    return pd.DataFrame(gdf.drop(columns="geometry")).reset_index(drop=True)
+    # Streamlit Cloud can fail on very large GeoPandas/Shapely point-array conversions.
+    # Use pyproj directly for the 632k Manitoba building points; this is faster and more stable.
+    transformer = Transformer.from_crs(WGS84_CRS, PROJECTED_CRS, always_xy=True)
+    lon_arr = df["lon"].to_numpy(dtype="float64")
+    lat_arr = df["lat"].to_numpy(dtype="float64")
+    x_arr, y_arr = transformer.transform(lon_arr, lat_arr)
+    df["x_m"] = np.asarray(x_arr, dtype="float64")
+    df["y_m"] = np.asarray(y_arr, dtype="float64")
+    return df.reset_index(drop=True)
 
 
 """
@@ -497,15 +506,38 @@ It keeps only the building or household candidate points inside the railway buff
 铁路附近的点
 """
 def filter_points_within_rail_buffer(df: pd.DataFrame, rail_line, rail_buffer) -> pd.DataFrame:
-    gdf = gpd.GeoDataFrame(
-        df.copy(),
-        geometry=gpd.points_from_xy(df["x_m"], df["y_m"]),
-        crs=PROJECTED_CRS,
-    )
+    # Avoid creating 632k Shapely Point objects on Streamlit Cloud.
+    # Instead, compute projected Euclidean distance from each candidate point to the railway polyline.
+    # This is equivalent to filtering by a rail-line buffer for our projected CRS.
+    if df.empty:
+        out = df.copy()
+        out["rail_distance_km"] = []
+        return out
 
-    gdf = gdf[gdf.geometry.within(rail_buffer)].copy()
-    gdf["rail_distance_km"] = gdf.geometry.distance(rail_line) / 1000.0
-    return pd.DataFrame(gdf.drop(columns="geometry")).reset_index(drop=True)
+    pts = df[["x_m", "y_m"]].to_numpy(dtype="float64")
+    line_coords = np.asarray(list(rail_line.coords), dtype="float64")
+    if line_coords.ndim != 2 or line_coords.shape[0] < 2:
+        raise ValueError("Rail line must contain at least two coordinate points.")
+
+    min_dist = np.full(len(pts), np.inf, dtype="float64")
+    for a, b in zip(line_coords[:-1], line_coords[1:]):
+        vx = float(b[0] - a[0])
+        vy = float(b[1] - a[1])
+        denom = vx * vx + vy * vy
+        if denom <= 0:
+            continue
+        wx = pts[:, 0] - float(a[0])
+        wy = pts[:, 1] - float(a[1])
+        t = np.clip((wx * vx + wy * vy) / denom, 0.0, 1.0)
+        proj_x = float(a[0]) + t * vx
+        proj_y = float(a[1]) + t * vy
+        dist = np.hypot(pts[:, 0] - proj_x, pts[:, 1] - proj_y)
+        min_dist = np.minimum(min_dist, dist)
+
+    mask = min_dist <= (RAIL_BUFFER_KM * 1000.0)
+    out = df.loc[mask].copy().reset_index(drop=True)
+    out["rail_distance_km"] = (min_dist[mask] / 1000.0).round(6)
+    return out
 
 """
 It creates grid points inside the study area to check where charger coverage is needed.
