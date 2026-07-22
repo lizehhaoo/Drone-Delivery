@@ -941,17 +941,106 @@ if final_plan_outputs:
         f6.metric("Blue temporary", first_value(final_summary, "blue_temporary_chargers_added", 0))
 
     st.markdown(
-        """
-        <div class="legend-row">
-          <div class="legend-item">🟢 Fixed permanent chargers only</div>
-          <div class="legend-item">🔵 Train station / charging base</div>
-          <div class="legend-item">🟠 Household / route stop</div>
-          <div class="legend-item">Colored lines = drone route legs</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    show_map(final_plan_outputs["map_html"], height=780)
+    st.markdown("### Map Legend")
+
+st.markdown(
+    """
+    <div class="legend-row">
+
+      <div class="legend-item">
+        🟢 Fixed permanent charger used in the final plan
+      </div>
+
+      <div class="legend-item">
+        🔵 Train station and charging base
+      </div>
+
+      <div class="legend-item">
+        🟠 Household or delivery route stop
+      </div>
+
+      <div class="legend-item">
+        <span style="
+            display:inline-block;
+            width:18px;
+            height:18px;
+            border:2px solid #2563eb;
+            border-radius:50%;
+            margin-right:6px;
+            vertical-align:middle;
+        "></span>
+        Operating range around a train station
+      </div>
+
+      <div class="legend-item">
+        <span style="
+            display:inline-block;
+            width:18px;
+            height:18px;
+            border:2px solid #16a34a;
+            border-radius:50%;
+            margin-right:6px;
+            vertical-align:middle;
+        "></span>
+        Operating range around a fixed permanent charger
+      </div>
+
+      <div class="legend-item">
+        <span style="
+            display:inline-block;
+            width:26px;
+            border-top:3px solid #111827;
+            margin-right:6px;
+            vertical-align:middle;
+        "></span>
+        Railway corridor
+      </div>
+
+      <div class="legend-item">
+        <span style="
+            display:inline-block;
+            width:18px;
+            height:18px;
+            border:2px solid #6b7280;
+            border-radius:50%;
+            margin-right:6px;
+            vertical-align:middle;
+        "></span>
+        300 km study-area buffer
+      </div>
+
+      <div class="legend-item">
+        <span style="
+            display:inline-block;
+            width:28px;
+            border-top:4px solid;
+            border-image:linear-gradient(
+                to right,
+                #dc2626,
+                #16a34a,
+                #2563eb,
+                #9333ea
+            ) 1;
+            margin-right:6px;
+            vertical-align:middle;
+        "></span>
+        Each line color represents a different drone delivery route
+      </div>
+
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.caption(
+    "Use the layer control in the upper-right corner of the map to show "
+    "or hide households, permanent chargers, coverage circles, railway "
+    "layers, and drone route legs."
+)
+
+show_map(final_plan_outputs["map_html"], height=780)
+
+
 
     final_status = read_csv_if_exists(final_plan_outputs.get("status_csv", ""))
     final_diag = read_csv_if_exists(final_plan_outputs.get("diagnostics_csv", ""))
@@ -1025,19 +1114,119 @@ if outputs:
     )
 
     with tab_map:
-        st.markdown(
-            """
-            <div class="legend-row">
-              <div class="legend-item">🔵 Train station / charging base</div>
-              <div class="legend-item">🟣 Permanent or relay charger candidate selected by the model</div>
-              <div class="legend-item">🟠 Actual recharging stop used in a route</div>
-              <div class="legend-item">🟢 Route origin</div>
-              <div class="legend-item">🔴 Final return station</div>
-              <div class="legend-item">Colored lines = selected drone route legs</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+    st.markdown("### Map Legend")
+
+    st.markdown(
+        """
+        <div class="legend-row">
+
+          <div class="legend-item">
+            🔵 Train station and charging base
+          </div>
+
+          <div class="legend-item">
+            🟣 Selected relay charger available to the routing model
+          </div>
+
+          <div class="legend-item">
+            🟠 Active recharging stop actually visited by a drone route
+          </div>
+
+          <div class="legend-item">
+            🟢 Route origin
+          </div>
+
+          <div class="legend-item">
+            🔴 Final return station
+          </div>
+
+          <div class="legend-item">
+            ⚪ Randomly selected household
+          </div>
+
+          <div class="legend-item">
+            <span style="
+                display:inline-block;
+                width:18px;
+                height:18px;
+                border:2px solid #2563eb;
+                border-radius:50%;
+                margin-right:6px;
+                vertical-align:middle;
+            "></span>
+            Operating range around a train station
+          </div>
+
+          <div class="legend-item">
+            <span style="
+                display:inline-block;
+                width:18px;
+                height:18px;
+                border:2px solid #a21caf;
+                border-radius:50%;
+                margin-right:6px;
+                vertical-align:middle;
+            "></span>
+            Operating range around a selected relay charger
+          </div>
+
+          <div class="legend-item">
+            <span style="
+                display:inline-block;
+                width:26px;
+                border-top:3px solid #111827;
+                margin-right:6px;
+                vertical-align:middle;
+            "></span>
+            Railway corridor
+          </div>
+
+          <div class="legend-item">
+            <span style="
+                display:inline-block;
+                width:18px;
+                height:18px;
+                border:2px solid #6b7280;
+                border-radius:50%;
+                margin-right:6px;
+                vertical-align:middle;
+            "></span>
+            300 km study-area buffer around the railway network
+          </div>
+
+          <div class="legend-item">
+            <span style="
+                display:inline-block;
+                width:28px;
+                border-top:4px solid;
+                border-image:linear-gradient(
+                    to right,
+                    #dc2626,
+                    #16a34a,
+                    #2563eb,
+                    #9333ea
+                ) 1;
+                margin-right:6px;
+                vertical-align:middle;
+            "></span>
+            Each line color represents a different drone delivery route
+          </div>
+
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.caption(
+        "Open the layer control in the upper-right corner of the map to "
+        "show or hide households, chargers, recharging stops, coverage "
+        "circles, railway layers, and drone route legs. Click any route "
+        "line to view its origin, visited households, recharging stops, "
+        "return station, payload, and complete node sequence."
+    )
+
+    show_map(outputs["map_html"], height=780)
+    
         st.caption("Open the layer control on the map to show/hide households, chargers, recharging stops, and drone route legs. Click any route line to see its origin, visited households, return node, payload, and full node sequence.")
         show_map(outputs["map_html"], height=780)
 
