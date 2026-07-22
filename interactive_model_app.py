@@ -665,7 +665,7 @@ with st.sidebar:
     st.divider()
     st.subheader("Food demand")
     food_kg_min = st.slider("Minimum food demand per household (kg)", 0.5, 10.0, 1.0, 0.1)
-    food_kg_max = st.slider("Maximum food demand per household (kg)", 0.5, 15.0, 5.0, 0.1)
+    food_kg_max = st.slider("Maximum food demand per household (kg)", 0.5, 15.0, 4.5, 0.1)
     if food_kg_min > food_kg_max:
         st.warning("Minimum food demand is larger than maximum. The backend will automatically swap them.")
 
